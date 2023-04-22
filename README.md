@@ -1,18 +1,16 @@
-# Create a JavaScript Action
+# Wait a minute...
 
 <p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
+  <a href="https://github.com/clechasseur/waitaminute/actions"><img alt="waitaminute status" src="https://github.com/clechasseur/waitaminute/workflows/units-test/badge.svg"></a>
 </p>
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+A GitHub Action that dismisses reviews from PRs when the PR diff changes.
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
+## But... why?
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+<em>Doesn't GitHub already support this?</em>
 
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
+It... kinda does. However, from experience, the GitHub feature sometimes clears reviews when you merge the base branch in the PR branch, or when you rebase, even if the PR diff itself doesn't change. If you experience this and it bothers you, this action is for you.
 
 ## Code in Main
 
