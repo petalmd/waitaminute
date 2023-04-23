@@ -16648,7 +16648,7 @@ async function processPREvent() {
 // Processes an 'issue_comment' event that can be used to add an approval.
 async function processIssueCommentEvent() {
   // TODO remove this before v1 launch
-  if (debugAllowApproval) {
+  if (debugAllowApproval === 'true') {
     const commentBody = github.context.issue?.comment?.body;
     const prUrl = github.context.issue?.pull_request?.url;
     if (prUrl && commentBody === 'waitaminute approve') {
