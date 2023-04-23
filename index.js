@@ -11,7 +11,7 @@ const PREVIOUS_DIFF_DIR_NAME = 'previous-diff';
 const CURRENT_DIFF_DIR_NAME = 'current-diff';
 
 const ghToken = core.getInput('gh-token', { required: true });
-const debugAllowApproval = core.getInput('debug-allow-approval', { required: false });
+const debugAllowApproval = core.getBooleanInput('debug-allow-approval', { required: false });
 
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
@@ -119,7 +119,7 @@ async function processPREvent() {
 // Processes an 'issue_comment' event that can be used to add an approval.
 async function processIssueCommentEvent() {
   // TODO remove this before v1 launch
-  if (debugAllowApproval === 'true') {
+  if (debugAllowApproval) {
     const commentBody = github.context.issue?.comment?.body;
     const prUrl = github.context.issue?.pull_request?.url;
     if (prUrl && commentBody === 'waitaminute approve') {
