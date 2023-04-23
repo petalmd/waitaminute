@@ -11,6 +11,7 @@ jobs:
     name: Remove approvals when PR diff changes
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
