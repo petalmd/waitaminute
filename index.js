@@ -78,6 +78,8 @@ async function saveDiffs(previousDiff, currentDiff) {
   if (previousDiff) {
     diffFiles[`${diffDirPath}/${WAITAMINUTE_DIFF_FILE_NAME_A}`] = previousDiff;
   }
+  core.debug(`Previous diff: ${previousDiff}`);
+  core.debug(`Current diff: ${currentDiff}`);
   await Promise.all(Object.entries(diffFiles).map(
     (diffFilePath, diff) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
@@ -90,19 +92,26 @@ async function saveDiffs(previousDiff, currentDiff) {
 
 // Processes a 'pull_request' event by comparing diffs to know if we need to remove approvals.
 async function processPREvent() {
+  core.notice('Getting PR information from event payload');
   const pr = github.context.payload.pull_request;
   if (!pr) {
     throw new Error('Pull request event did not contain PR information.');
   }
 
+  core.notice('Fetching previous and current diffs for the PR');
   const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
+  
+  core.notice(`Got previous diff: ${previousDiff ? 'yes' : 'no'}`);
   const diffsAreDifferent = previousDiff && !compareDiffs(previousDiff, currentDiff);
+  core.notice(`Comparing diffs: ${diffsAreDifferent ? 'same' : 'different'}`);
 
   if (diffsAreDifferent) {
+    core.notice('Removing PR approvals because PR diff changed');
     await removeAllApprovals(pr);
   }
 
   if (!previousDiff || diffsAreDifferent) {
+    core.notice('Saving diff for next action execution');
     await saveDiffs(previousDiff, currentDiff);
   }
 }
@@ -126,6 +135,7 @@ async function processIssueCommentEvent() {
 
 // Main body of the GitHub action.
 async function waitaminute() {
+  core.notice(`Event name: ${github.context.eventName}`);
   switch (github.context.eventName) {
     case 'pull_request':
       await processPREvent();
