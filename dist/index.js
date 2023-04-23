@@ -16547,7 +16547,7 @@ const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 const PREVIOUS_DIFF_DIR_NAME = 'previous-diff';
 const CURRENT_DIFF_DIR_NAME = 'current-diff';
 
-const ghToken = core.getInput('github-token', { required: true });
+const ghToken = core.getInput('gh-token', { required: true });
 const debugAllowApproval = core.getInput('debug-allow-approval', { required: false });
 
 const ghClient = github.getOctokit(ghToken);
