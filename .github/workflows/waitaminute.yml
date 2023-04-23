@@ -2,7 +2,7 @@ name: Remove approvals when PR diff changes
 
 on:
   pull_request:
-    types: [ open, edited, synchronize ]
+    types: [ opened, edited, synchronize ]
   issue_comment:
     types: [ created, edited ]
 
