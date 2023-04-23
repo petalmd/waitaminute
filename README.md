@@ -7,7 +7,7 @@
 A GitHub Action that dismisses reviews from PRs when the PR diff changes.
 lol
 ## But... why?
-
+lol
 <em>Doesn't GitHub already support this?</em>
 
 It... kinda does. However, from experience, the GitHub feature sometimes clears reviews when you merge the base branch in the PR branch, or when you rebase, even if the PR diff itself doesn't change. If you experience this and it bothers you, this action is for you.
