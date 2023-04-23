@@ -2,8 +2,8 @@ name: 'Wait a minute...'
 author: 'Charles Lechasseur'
 description: 'Dismisses PR reviews when the PR diff changes'
 inputs:
-  github-token:
-    description: GITHUB_TOKEN secret
+  gh-token:
+    description: GitHub personal access token
     required: true
   debug-allow-approval:
     description: If true, will approve a PR when 'waitaminute approve' is seen in a PR comment (note - this will most likely be removed before launch)
