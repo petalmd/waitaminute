@@ -16615,8 +16615,8 @@ async function saveDiffs(previousDiff, currentDiff) {
   if (previousDiff) {
     diffFiles[`${diffDirPath}/${WAITAMINUTE_DIFF_FILE_NAME_A}`] = previousDiff;
   }
-  core.debug(`Previous diff: ${previousDiff}`);
-  core.debug(`Current diff: ${currentDiff}`);
+  core.notice(`Previous diff: ${previousDiff}`);
+  core.notice(`Current diff: ${currentDiff}`);
   await Promise.all(Object.entries(diffFiles).map(
     (diffFilePath, diff) => (0,promises_namespaceObject.writeFile)(diffFilePath, diff, { encoding: 'utf8' })
   ));
@@ -16640,7 +16640,7 @@ async function processPREvent() {
   
   core.notice(`Got previous diff: ${previousDiff ? 'yes' : 'no'}`);
   const diffsAreDifferent = previousDiff && !(0,compare/* compareDiffs */.I)(previousDiff, currentDiff);
-  core.notice(`Comparing diffs: ${diffsAreDifferent ? 'same' : 'different'}`);
+  core.notice(`Comparing diffs: ${diffsAreDifferent ? 'different' : 'same'}`);
 
   if (diffsAreDifferent) {
     core.notice('Removing PR approvals because PR diff changed');
