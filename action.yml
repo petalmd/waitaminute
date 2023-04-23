@@ -2,13 +2,9 @@ name: 'Wait a minute...'
 author: 'Charles Lechasseur'
 description: 'Dismisses PR reviews when the PR diff changes'
 inputs:
-  gh-token:
-    description: GitHub personal access token
+  github-token:
+    description: Value of the GITHUB_TOKEN secret
     required: true
-  debug-allow-approval:
-    description: If true, will approve a PR when 'waitaminute approve' is seen in a PR comment (note - this will most likely be removed before launch)
-    required: false
-    default: false
 runs:
   using: 'node16'
   main: 'dist/index.js'

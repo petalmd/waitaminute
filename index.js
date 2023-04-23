@@ -10,8 +10,7 @@ const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 const PREVIOUS_DIFF_DIR_NAME = 'previous-diff';
 const CURRENT_DIFF_DIR_NAME = 'current-diff';
 
-const ghToken = core.getInput('gh-token', { required: true });
-const debugAllowApproval = core.getBooleanInput('debug-allow-approval', { required: false });
+const ghToken = core.getInput('github-token', { required: true });
 
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
@@ -119,23 +118,20 @@ async function processPREvent() {
 // Processes an 'issue_comment' event that can be used to add an approval.
 async function processIssueCommentEvent() {
   // TODO remove this before v1 launch
-  core.notice(`debugAllowApproval: ${debugAllowApproval}`);
-  if (debugAllowApproval) {
-    core.notice(`issue.number: ${github.context.issue?.number}`);
-    core.notice(`pull_request.number: ${github.context.pull_request?.number}`);
-    const commentBody = github.context.payload?.comment?.body;
-    const prUrl = github.context.payload?.issue?.pull_request?.url;
-    core.notice(`commentBody: ${commentBody}`);
-    core.notice(`prUrl: ${prUrl}`);
-    if (prUrl && commentBody === 'waitaminute approve') {
-      const { data: { number: prNumber } } = await ghClient.request(prUrl);
-      core.notice(`prNumber: ${prNumber}`);
-      await ghClient.rest.pulls.createReview({
-        ...github.context.repo,
-        pull_number: prNumber,
-        event: 'APPROVE',
-      });
-    }
+  core.notice(`issue.number: ${github.context.issue?.number}`);
+  core.notice(`pull_request.number: ${github.context.pull_request?.number}`);
+  const commentBody = github.context.payload?.comment?.body;
+  const prUrl = github.context.payload?.issue?.pull_request?.url;
+  core.notice(`commentBody: ${commentBody}`);
+  core.notice(`prUrl: ${prUrl}`);
+  if (prUrl && commentBody === 'waitaminute approve') {
+    const { data: { number: prNumber } } = await ghClient.request(prUrl);
+    core.notice(`prNumber: ${prNumber}`);
+    await ghClient.rest.pulls.createReview({
+      ...github.context.repo,
+      pull_number: prNumber,
+      event: 'APPROVE',
+    });
   }
 }
 
