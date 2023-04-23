@@ -6,3 +6,4 @@ const compareDiffs = function(diffA, diffB) {
 }
 
 exports.compareDiffs = compareDiffs;
+
