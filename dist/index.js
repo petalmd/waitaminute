@@ -16659,8 +16659,9 @@ async function processIssueCommentEvent() {
   core.notice(`debugAllowApproval: ${debugAllowApproval}`);
   if (debugAllowApproval) {
     core.notice(`issue.number: ${github.context.issue?.number}`);
-    const commentBody = github.context.issue?.comment?.body;
-    const prUrl = github.context.issue?.pull_request?.url;
+    core.notice(`pull_request.number: ${github.context.pull_request?.number}`);
+    const commentBody = github.context.payload?.comment?.body;
+    const prUrl = github.context.payload?.issue?.pull_request?.url;
     core.notice(`commentBody: ${commentBody}`);
     core.notice(`prUrl: ${prUrl}`);
     if (prUrl && commentBody === 'waitaminute approve') {
