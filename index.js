@@ -81,7 +81,7 @@ async function saveDiffs(previousDiff, currentDiff) {
   core.notice(`Previous diff: ${previousDiff}`);
   core.notice(`Current diff: ${currentDiff}`);
   await Promise.all(Object.entries(diffFiles).map(
-    (diffFilePath, diff) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
+    ([diffFilePath, diff]) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
 
   const { failedItems } = await artiClient.uploadArtifact(WAITAMINUTE_ARTIFACT_NAME, Object.keys(diffFiles), diffDirPath);
