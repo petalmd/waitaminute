@@ -119,11 +119,16 @@ async function processPREvent() {
 // Processes an 'issue_comment' event that can be used to add an approval.
 async function processIssueCommentEvent() {
   // TODO remove this before v1 launch
+  core.notice(`debugAllowApproval: ${debugAllowApproval}`);
   if (debugAllowApproval) {
+    core.notice(`issue.number: ${github.context.issue?.number}`);
     const commentBody = github.context.issue?.comment?.body;
     const prUrl = github.context.issue?.pull_request?.url;
+    core.notice(`commentBody: ${commentBody}`);
+    core.notice(`prUrl: ${prUrl}`);
     if (prUrl && commentBody === 'waitaminute approve') {
       const { data: { number: prNumber } } = await ghClient.request(prUrl);
+      core.notice(`prNumber: ${prNumber}`);
       await ghClient.rest.pulls.createReview({
         ...github.context.repo,
         pull_number: prNumber,
