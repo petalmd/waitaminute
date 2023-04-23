@@ -1,14 +1,14 @@
-import { mkdir, readFile, rm, writeFile } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as artifact from '@actions/artifact';
 import { compareDiffs } from './compare';
+import AdmZip from 'adm-zip';
 
 const WAITAMINUTE_ARTIFACT_NAME = 'waitaminute-data';
+const CURRENT_DIFF_DIR_NAME = 'current-diff';
 const WAITAMINUTE_DIFF_FILE_NAME_A = 'waitaminute.a.diff';
 const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
-const PREVIOUS_DIFF_DIR_NAME = 'previous-diff';
-const CURRENT_DIFF_DIR_NAME = 'current-diff';
 
 const ghToken = core.getInput('github-token', { required: true });
 
@@ -16,25 +16,90 @@ const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
 
-// Downloads the previous diff files and returns the content of the previous diff.
-// If no previous diff could be downloaded, returns undefined.
-async function downloadPreviousDiff() {
-  try {
-    const diffDirPath = `${workspace}/${PREVIOUS_DIFF_DIR_NAME}`;
+// Finds the ID of this workflow.
+async function getWorkflowId() {
+  const { data: { workflow_id: workflowId } } = await ghClient.rest.actions.getWorkflowRun({
+    ...github.context.repo,
+    run_id: github.context.runId,
+  });
 
-    await rm(diffDirPath, { force: true, recursive: true });
-    await mkdir(diffDirPath, { recursive: true });
-    
-    const dlResponse = await artiClient.downloadArtifact(WAITAMINUTE_ARTIFACT_NAME, diffDirPath);
-    
-    const diffFilePath = `${dlResponse.downloadPath}/${WAITAMINUTE_DIFF_FILE_NAME_B}`;
-    const diffData = await readFile(diffFilePath, { encoding: 'utf8' });
+  return workflowId;
+}
 
-    return diffData;
-  } catch (err) {
-    core.notice(`Could not download previous diff artifact: ${err}`);
-    return undefined;
+// Finds the ID of the latest successful run of this workflow.
+// If no previous successful run is found, returns null.
+async function getLatestSuccessfulRunId() {
+  const workflowId = await getWorkflowId();
+
+  const runsIt = ghClient.paginate.iterator(ghClient.rest.actions.listWorkflowRuns, {
+    ...github.context.repo,
+    workflow_id: workflowId,
+  });
+  for await (const runs of runsIt) {
+    for (const run of runs.data) {
+      if (run.conclusion === 'success') {
+        return run.id;
+      }
+    }
   }
+  
+  core.notice('Could not find a previous run of this workflow.');
+  return null;
+}
+
+// Finds the ID of the latest artifact containing previous diff data.
+// If no previous diff is found, returns null.
+async function getPreviousDiffArtifactId() {
+  const runId = await getLatestSuccessfulRunId();
+  if (runId) {
+    const artifacts = await ghClient.paginate(ghClient.rest.actions.listWorkflowRunArtifacts, {
+      ...github.context.repo,
+      run_id: runId,
+    });
+
+    const diffArtifact = artifacts.find((artifact) => artifact.name === WAITAMINUTE_ARTIFACT_NAME);
+    if (diffArtifact) {
+      return diffArtifact.id;
+    }
+
+    core.notice('Could not find the previous diff artifact in the latest successful workflow run.');
+  }
+
+  return null;
+}
+
+// Downloads the previous diff files and returns the content of the previous diff.
+// If no previous diff could be downloaded, returns null.
+async function downloadPreviousDiff() {
+  const diffArtifactId = await getPreviousDiffArtifactId();
+  if (diffArtifactId) {
+    let zippedDiffData;
+    try {
+      const zippedDiffResponse = await ghClient.rest.actions.downloadArtifact({
+        ...github.context.repo,
+        artifact_id: diffArtifactId,
+        archive_format: 'zip',
+      });
+
+      zippedDiffData = zippedDiffResponse.data;
+    } catch (err) {
+      if (err.message === 'Artifact has expired') {
+        core.notice('Previous diff artifact has expired.');
+        zippedDiffData = null;
+      } else {
+        throw err;
+      }
+    }
+
+    if (zippedDiffData) {
+      const zip = new AdmZip(Buffer.from(zippedDiffData));
+      const diffData = zip.readAsText(WAITAMINUTE_DIFF_FILE_NAME_B);
+
+      return diffData;
+    }
+  }
+
+  return null;
 }
 
 // Fetches the current PR diff and returns it.
@@ -57,7 +122,8 @@ async function removeAllApprovals(pr) {
     pull_number: pr.number,
   });
 
-  await Promise.all(reviews.map((review) => ghClient.rest.pulls.dismissReview({
+  const approvals = reviews.filter((review) => review.state === 'APPROVED');
+  await Promise.all(approvals.map((review) => ghClient.rest.pulls.dismissReview({
     ...github.context.repo,
     pull_number: pr.number,
     review_id: review.id,
@@ -77,8 +143,6 @@ async function saveDiffs(previousDiff, currentDiff) {
   if (previousDiff) {
     diffFiles[`${diffDirPath}/${WAITAMINUTE_DIFF_FILE_NAME_A}`] = previousDiff;
   }
-  core.notice(`Previous diff: ${previousDiff}`);
-  core.notice(`Current diff: ${currentDiff}`);
   await Promise.all(Object.entries(diffFiles).map(
     ([diffFilePath, diff]) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
@@ -91,28 +155,19 @@ async function saveDiffs(previousDiff, currentDiff) {
 
 // Processes a 'pull_request' event by comparing diffs to know if we need to remove approvals.
 async function processPREvent() {
-  core.notice('Getting PR information from event payload');
   const pr = github.context.payload.pull_request;
   if (!pr) {
     throw new Error('Pull request event did not contain PR information.');
   }
 
-  core.notice('Fetching previous and current diffs for the PR');
   const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
-  
-  core.notice(`Got previous diff: ${previousDiff ? 'yes' : 'no'}`);
-  const diffsAreDifferent = previousDiff && !compareDiffs(previousDiff, currentDiff);
-  core.notice(`Comparing diffs: ${diffsAreDifferent ? 'different' : 'same'}`);
 
-  if (diffsAreDifferent) {
-    core.notice('Removing PR approvals because PR diff changed');
+  if (previousDiff && !compareDiffs(previousDiff, currentDiff)) {
+    core.info('Removing PR approvals because PR diff changed.');
     await removeAllApprovals(pr);
   }
 
-  if (!previousDiff || diffsAreDifferent) {
-    core.notice('Saving diff for next action execution');
-    await saveDiffs(previousDiff, currentDiff);
-  }
+  await saveDiffs(previousDiff, currentDiff);
 }
 
 // Processes an 'issue_comment' event that can be used to add an approval.
@@ -137,9 +192,6 @@ async function processIssueCommentEvent() {
 
 // Main body of the GitHub action.
 async function waitaminute() {
-  core.notice(`Event name: ${github.context.eventName}`);
-  core.notice(`SHA: ${github.context.sha}`);
-  core.notice(`Workflow: ${github.context.workflow}`);
   switch (github.context.eventName) {
     case 'pull_request':
       await processPREvent();
@@ -152,8 +204,7 @@ async function waitaminute() {
   }
 }
 
-core.notice('Starting waitaminute action execution...');
+core.info('Starting waitaminute action execution.');
 waitaminute()
-  .then(() => core.notice('waitaminute action execution encountered no error.'))
   .catch((err) => core.setFailed(`waitaminute action execution stopped: ${err}`))
-  .finally(() => core.notice('waitaminute action execution complete.'));
+  .finally(() => core.info('waitaminute action execution complete.'));
