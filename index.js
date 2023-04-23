@@ -138,6 +138,8 @@ async function processIssueCommentEvent() {
 // Main body of the GitHub action.
 async function waitaminute() {
   core.notice(`Event name: ${github.context.eventName}`);
+  core.notice(`SHA: ${github.context.sha}`);
+  core.notice(`Workflow: ${github.context.workflow}`);
   switch (github.context.eventName) {
     case 'pull_request':
       await processPREvent();
