@@ -5,7 +5,7 @@
 </p>
 
 A GitHub Action that dismisses reviews from PRs when the PR diff changes.
-
+lol
 ## But... why?
 
 <em>Doesn't GitHub already support this?</em>
