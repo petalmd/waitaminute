@@ -11,4 +11,4 @@ test('compareDiffs detects different diffs', () => {
   const diffB = 'world';
   expect(compareDiffs(diffA, diffB)).toBeFalsy();
 });
-// lololol
+// lolololol
