@@ -5,6 +5,10 @@ inputs:
   github-token:
     description: Value of the GITHUB_TOKEN secret
     required: true
+  dismiss-message:
+    description: Message used when dismissing PR reviews
+    required: false
+    default: 'Dismissed by waitaminute because PR diff changed.'
 outputs:
   diff-changed:
     description: Set to 'true' if the PR diff changed

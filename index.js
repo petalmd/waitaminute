@@ -10,7 +10,8 @@ const CURRENT_DIFF_DIR_NAME = 'current-diff';
 const WAITAMINUTE_DIFF_FILE_NAME_A = 'waitaminute.a.diff';
 const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 
-const ghToken = core.getInput('github-token', { required: true });
+const ghToken = core.getInput('github-token');
+const dismissMessage = core.getInput('dismiss-message');
 
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
@@ -128,7 +129,7 @@ async function removeAllApprovals(pr) {
     ...github.context.repo,
     pull_number: pr.number,
     review_id: review.id,
-    message: 'Dismissed by waitaminute because PR diff changed.',
+    message: dismissMessage,
   })));
 }
 
