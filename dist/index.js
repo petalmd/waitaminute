@@ -19451,6 +19451,7 @@ async function getLatestSuccessfulRunId() {
   const runsIt = ghClient.paginate.iterator(ghClient.rest.actions.listWorkflowRuns, {
     ...github.context.repo,
     workflow_id: workflowId,
+    event: 'pull_request',
   });
   for await (const runs of runsIt) {
     for (const run of runs.data) {
