@@ -1,16 +1,19 @@
 import { mkdir, rm, writeFile } from 'fs/promises';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import * as artifact from '@actions/artifact';
 import AdmZip from 'adm-zip';
 import { compareDiffs } from './compare';
-import { CURRENT_DIFF_DIR_NAME, WAITAMINUTE_ARTIFACT_NAME } from './constants';
 
+const WAITAMINUTE_ARTIFACT_NAME = 'waitaminute-data';
+const CURRENT_DIFF_DIR_NAME = 'current-diff';
 const WAITAMINUTE_DIFF_FILE_NAME_A = 'waitaminute.a.diff';
 const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 
 const ghToken = core.getInput('github-token', { required: true });
 
 const ghClient = github.getOctokit(ghToken);
+const artiClient = artifact.create();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
 
 // Finds the ID of this workflow.
@@ -130,7 +133,7 @@ async function removeAllApprovals(pr) {
   })));
 }
 
-// Saves the current diffs to a directory in the workspace so that the post-script can upload them.
+// Uploads the current diffs as an artifact so that our next run can find them.
 async function saveDiffs(previousDiff, currentDiff) {
   const diffDirPath = `${workspace}/${CURRENT_DIFF_DIR_NAME}`;
 
@@ -143,10 +146,14 @@ async function saveDiffs(previousDiff, currentDiff) {
   if (previousDiff) {
     diffFiles[`${diffDirPath}/${WAITAMINUTE_DIFF_FILE_NAME_A}`] = previousDiff;
   }
-
   await Promise.all(Object.entries(diffFiles).map(
     ([diffFilePath, diff]) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
+
+  const { failedItems } = await artiClient.uploadArtifact(WAITAMINUTE_ARTIFACT_NAME, Object.keys(diffFiles), diffDirPath);
+  if (failedItems.length !== 0) {
+    throw new Error(`Failed to upload current diff artifact - failed items: ${failedItems}`);
+  }
 }
 
 // Processes a 'pull_request' event by comparing diffs to know if we need to remove approvals.
@@ -161,13 +168,12 @@ async function processPREvent() {
   const diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
   core.setOutput('diff-changed', diffChanged);
 
-  // We save the diffs BEFORE removing approvals so that post-script can find them.
-  await saveDiffs(previousDiff, currentDiff);
-
   if (diffChanged) {
-    core.info('Removing PR approvals because PR diff changed.');
+    core.notice('Removing PR approvals because PR diff changed.');
     await removeAllApprovals(pr);
   }
+
+  await saveDiffs(previousDiff, currentDiff);
 }
 
 // Processes an 'issue_comment' event that can be used to add an approval.
