@@ -30,7 +30,7 @@ jobs:
   waitaminute:
     runs-on: ubuntu-latest
     steps:
-      - uses: clechasseur/waitaminute@v1
+      - uses: clechasseur/waitaminute@v1.0.0-beta
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           dismiss-message: Review dismissed because the PR has changed.
