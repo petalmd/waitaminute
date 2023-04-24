@@ -5,9 +5,13 @@ inputs:
   github-token:
     description: Value of the GITHUB_TOKEN secret
     required: true
+outputs:
+  diff-changed:
+    description: Set to 'true' if the PR diff changed
 runs:
   using: 'node16'
   main: 'dist/index.js'
+  post: 'dist/post.js'
 branding:
   icon: 'alert-circle'
   color: 'blue'
