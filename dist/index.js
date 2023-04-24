@@ -19535,15 +19535,12 @@ async function getCurrentDiff(pr) {
 
 // Removes all aprovals from the PR since diff changed.
 async function removeAllApprovals(pr) {
-  core.info(`Fetching reviews for PR ${pr.number}`);
   const reviews = await ghClient.paginate(ghClient.rest.pulls.listReviews, {
     ...github.context.repo,
     pull_number: pr.number,
   });
-  core.info(`Found ${reviews.length} reviews`);
 
   const approvals = reviews.filter((review) => review.state === 'APPROVED');
-  core.info(`Found ${approvals.length} approvals`);
   await Promise.all(approvals.map((review) => ghClient.rest.pulls.dismissReview({
     ...github.context.repo,
     pull_number: pr.number,
