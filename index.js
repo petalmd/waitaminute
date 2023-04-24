@@ -130,7 +130,7 @@ async function removeAllApprovals(pr) {
     ...github.context.repo,
     pull_number: pr.number,
     review_id: review.id,
-    message: 'Dismisses by waitaminute because PR diff changed',
+    message: 'Dismissed by waitaminute because PR diff changed.',
   })));
 }
 
