@@ -3,8 +3,6 @@ name: Remove approvals when PR diff changes
 on:
   pull_request:
     types: [ opened, edited, synchronize ]
-  issue_comment:
-    types: [ created, edited ]
 
 jobs:
   waitaminute:
