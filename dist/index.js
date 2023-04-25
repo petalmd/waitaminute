@@ -19616,34 +19616,11 @@ async function processPREvent() {
   }
 }
 
-// Processes an 'issue_comment' event that can be used to add an approval.
-async function processIssueCommentEvent() {
-  // TODO remove this before v1 launch
-  core.notice(`issue.number: ${github.context.issue?.number}`);
-  core.notice(`pull_request.number: ${github.context.pull_request?.number}`);
-  const commentBody = github.context.payload?.comment?.body;
-  const prUrl = github.context.payload?.issue?.pull_request?.url;
-  core.notice(`commentBody: ${commentBody}`);
-  core.notice(`prUrl: ${prUrl}`);
-  if (prUrl && commentBody === 'waitaminute approve') {
-    const { data: { number: prNumber } } = await ghClient.request(prUrl);
-    core.notice(`prNumber: ${prNumber}`);
-    await ghClient.rest.pulls.createReview({
-      ...github.context.repo,
-      pull_number: prNumber,
-      event: 'APPROVE',
-    });
-  }
-}
-
 // Main body of the GitHub action.
 async function waitaminute() {
   switch (github.context.eventName) {
     case 'pull_request':
       await processPREvent();
-      break;
-    case 'issue_comment':
-      await processIssueCommentEvent();
       break;
     default:
       throw new Error(`Unsupported GitHub event: '${github.context.eventName}'.`);
