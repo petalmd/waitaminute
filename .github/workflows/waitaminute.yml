@@ -14,4 +14,5 @@ jobs:
       - uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: foobar
+          target-branch-filter: '^foo.*bar$'
+          target-branch-filter-flags: 'i'
