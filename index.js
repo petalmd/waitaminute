@@ -12,10 +12,31 @@ const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 
 const ghToken = core.getInput('github-token');
 const dismissMessage = core.getInput('dismiss-message');
+const targetBranch = core.getInput('target-branch');
+const targetBranchFilter = core.getInput('target-branch-filter');
+const targetBranchFilterFlags = core.getInput('target-branch-filter-flags');
 
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
+
+// Checks if the name of the base branch passes filters provided by user.
+function canTargetBaseBranch(branchName) {
+  if (targetBranch && branchName != targetBranch) {
+    core.notice(`Will skip execution because branch '${branchName}' does not match target branch '${targetBranch}'.`);
+    return false;
+  }
+
+  if (targetBranchFilter) {
+    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags);
+    if (!regex.test(branchName)) {
+      core.notice(`Will skip execution because branch '${branchName}' does not pass target branch filter '${targetBranchFilter}'.`);
+      return false;
+    }
+  }
+
+  return true;
+}
 
 // Finds the ID of this workflow.
 async function getWorkflowId() {
@@ -162,20 +183,20 @@ async function processPREvent() {
   if (!pr) {
     throw new Error('Pull request event did not contain PR information.');
   }
-  const { repo: _, ...base } = pr.base;
-  core.notice(`PR base: ${JSON.stringify(base)}`);
 
-  const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
+  if (canTargetBaseBranch(pr.base.ref)) {
+    const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
 
-  const diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
-  core.setOutput('diff-changed', diffChanged);
+    const diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
+    core.setOutput('diff-changed', diffChanged);
 
-  if (diffChanged) {
-    core.notice('Removing PR approvals because PR diff changed.');
-    await removeAllApprovals(pr);
+    if (diffChanged) {
+      core.notice('Removing PR approvals because PR diff changed.');
+      await removeAllApprovals(pr);
+    }
+
+    await saveDiffs(previousDiff, currentDiff);
   }
-
-  await saveDiffs(previousDiff, currentDiff);
 }
 
 // Processes an 'issue_comment' event that can be used to add an approval.
