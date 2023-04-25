@@ -162,6 +162,7 @@ async function processPREvent() {
   if (!pr) {
     throw new Error('Pull request event did not contain PR information.');
   }
+  core.notice(`PR base: ${JSON.stringify(pr.base)}`);
 
   const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
 
