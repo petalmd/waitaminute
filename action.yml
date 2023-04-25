@@ -9,6 +9,16 @@ inputs:
     description: Message used when dismissing PR reviews
     required: false
     default: 'Dismissed by waitaminute because PR diff changed.'
+  target-branch:
+    description: If set, action will only consider PRs targeting this base branch
+    required: false
+  target-branch-filter:
+    description: Like target-branch, but interpreted as a regex; if both this and target-branch are set, base branch must match both filters
+    required: false
+  target-branch-filter-flags:
+    description: If target-branch-filter is set, this can be used to pass regex flags. By default, will create a case-insensitive regex.
+    required: false
+    default: 'i'
 outputs:
   diff-changed:
     description: Set to 'true' if the PR diff changed
