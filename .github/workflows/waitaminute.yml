@@ -10,6 +10,3 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-        with:
-          target-branch: test/pr-6
-          target-branch-filter: foo.*bar
