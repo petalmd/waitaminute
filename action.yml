@@ -1,9 +1,9 @@
-name: 'fdjhfasklajsdflkjhdfslkdfs'
+name: 'waitaminute...'
 author: 'Charles Lechasseur'
 description: 'Dismisses PR reviews when the PR diff changes'
 inputs:
   github-token:
-    description: Value of the GITHUB_TOKEN secret
+    description: GitHub personal access token
     required: true
   dismiss-message:
     description: Message used when dismissing PR reviews
