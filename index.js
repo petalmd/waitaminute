@@ -12,7 +12,7 @@ const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 
 const ghToken = core.getInput('github-token');
 const dismissMessage = core.getInput('dismiss-message');
-const targetBranch = core.getInput('target-branch');
+const targetBranch = core.getInput('target-branch', { trimWhitespace: false });
 const targetBranchFilter = core.getInput('target-branch-filter');
 const targetBranchFilterFlags = core.getInput('target-branch-filter-flags');
 
@@ -25,13 +25,13 @@ function canTargetBaseBranch(pr) {
   const prBaseBranch = pr.base.ref;
 
   if (targetBranchFilter) {
-    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags ?? '');
+    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags);
     if (!regex.test(prBaseBranch)) {
       core.notice(`Will skip execution because branch '${prBaseBranch}' does not pass target branch filter '${targetBranchFilter}'.`);
       return false;
     }
   } else {
-    const effectiveTargetBranch = (targetBranch ?? pr.base.repo.default_branch).trim();
+    const effectiveTargetBranch = (targetBranch || pr.base.repo.default_branch).trim();
     if (effectiveTargetBranch && prBaseBranch != effectiveTargetBranch) {
       core.notice(`Will skip execution because branch '${prBaseBranch}' does not match target branch '${effectiveTargetBranch}'.`);
       return false;
