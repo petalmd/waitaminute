@@ -19437,17 +19437,20 @@ const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact_client/* create */.U();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
 
-// Checks if the name of the base branch passes filters provided by user.
-function canTargetBaseBranch(branchName) {
-  if (targetBranch && branchName != targetBranch) {
-    core.notice(`Will skip execution because branch '${branchName}' does not match target branch '${targetBranch}'.`);
-    return false;
-  }
+// Checks if the name of the PR's base branch passes filters provided by user.
+function canTargetBaseBranch(pr) {
+  const prBaseBranch = pr.base.ref;
 
   if (targetBranchFilter) {
-    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags);
-    if (!regex.test(branchName)) {
-      core.notice(`Will skip execution because branch '${branchName}' does not pass target branch filter '${targetBranchFilter}'.`);
+    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags ?? '');
+    if (!regex.test(prBaseBranch)) {
+      core.notice(`Will skip execution because branch '${prBaseBranch}' does not pass target branch filter '${targetBranchFilter}'.`);
+      return false;
+    }
+  } else {
+    const effectiveTargetBranch = (targetBranch ?? pr.base.repo.default_branch).trim();
+    if (effectiveTargetBranch && prBaseBranch != effectiveTargetBranch) {
+      core.notice(`Will skip execution because branch '${prBaseBranch}' does not match target branch '${effectiveTargetBranch}'.`);
       return false;
     }
   }
@@ -19602,7 +19605,7 @@ async function processPREvent() {
   }
 
   let diffChanged = false;
-  if (canTargetBaseBranch(pr.base.ref)) {
+  if (canTargetBaseBranch(pr)) {
     const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
 
     diffChanged = previousDiff && !(0,compare/* compareDiffs */.I)(previousDiff, currentDiff);

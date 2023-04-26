@@ -26,10 +26,10 @@ on:
     # Here, 'opened' is important because it allows the action to
     # see the initial PR diff and compare it later.
     types: [ opened, edited, synchronize ]
-    
+
     # Note: if you want to limit the effect to a specific base branch,
     # do not use the 'branches:' filter here, use the action's
-    # 'target-branch' input (see below).
+    # 'target-branch' input (see Action parameters).
 
 jobs:
   waitaminute:
@@ -37,9 +37,7 @@ jobs:
     steps:
       - uses: clechasseur/waitaminute@v1.0.0-beta2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           dismiss-message: Review dismissed because the PR has changed.
-          target-branch: main
 ```
 
 4. Click on *Start commit* to commit your new workflow file, using a PR if necessary.
@@ -48,11 +46,11 @@ jobs:
 
 | Name | Description | Required | Default |
 | --- | --- | --- | --- |
-| `github-token` | GitHub personal access token.<br/>Use `${{ secrets.GITHUB_TOKEN }}` for simplicity. | true | |
+| `github-token` | GitHub personal access token. | false | `${{ github.token }}` (see [here](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)) |
 | `dismiss-message` | Message that is displayed when the action dismisses a PR review. | false | `Dismissed by waitaminute because PR diff changed.` |
-| `target-branch` | If set, only PRs targeting this branch will be considered. | false | |
-| `target-branch-filter` | Like `target-branch`, but interpreted as a regex.<br/>If both this and `target-branch` are set, base branch must match both filters. | false | |
-| `target-branch-filter-flags` | Regex flags used with `target-branch-filter`. | false | `i` (case-insensitive) |
+| `target-branch` | If set, only PRs targeting this branch will be considered. | false | *default branch for the repository* |
+| `target-branch-filter` | Like `target-branch`, but interpreted as a regex.<br/>Takes precedence over `target-branch` if set. | false | |
+| `target-branch-filter-flags` | Regex flags used with `target-branch-filter`. | false | |
 
 ## Development
 
