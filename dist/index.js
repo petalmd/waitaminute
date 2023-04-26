@@ -19601,12 +19601,11 @@ async function processPREvent() {
     throw new Error('Pull request event did not contain PR information.');
   }
 
+  let diffChanged = false;
   if (canTargetBaseBranch(pr.base.ref)) {
     const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
 
-    const diffChanged = previousDiff && !(0,compare/* compareDiffs */.I)(previousDiff, currentDiff);
-    core.setOutput('diff-changed', diffChanged);
-
+    diffChanged = previousDiff && !(0,compare/* compareDiffs */.I)(previousDiff, currentDiff);
     if (diffChanged) {
       core.notice('Removing PR approvals because PR diff changed.');
       await removeAllApprovals(pr);
@@ -19614,6 +19613,8 @@ async function processPREvent() {
 
     await saveDiffs(previousDiff, currentDiff);
   }
+
+  core.setOutput('diff-changed', diffChanged);
 }
 
 // Main body of the GitHub action.
