@@ -23,7 +23,10 @@ name: Remove approvals when PR diff changes
 
 on:
   pull_request:
+    # Here, 'opened' is important because it allows the action to
+    # see the initial PR diff and compare it later.
     types: [ opened, edited, synchronize ]
+    
     # Note: if you want to limit the effect to a specific base branch,
     # do not use the 'branches:' filter here, use the action's
     # 'target-branch' input (see below).

@@ -4,7 +4,8 @@ description: 'Dismisses PR reviews when the PR diff changes'
 inputs:
   github-token:
     description: GitHub personal access token
-    required: true
+    required: false
+    default: ${{ github.token }}
   dismiss-message:
     description: Message used when dismissing PR reviews
     required: false
