@@ -24,7 +24,9 @@ name: Remove approvals when PR diff changes
 on:
   pull_request:
     types: [ opened, edited, synchronize ]
-    # You can use the 'branches:' filter to limit the workflow to some branches only
+    # Note: if you want to limit the effect to a specific base branch,
+    # do not use the 'branches:' filter here, use the action's
+    # 'target-branch' input (see below).
 
 jobs:
   waitaminute:
@@ -34,6 +36,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           dismiss-message: Review dismissed because the PR has changed.
+          target-branch: main
 ```
 
 4. Click on *Start commit* to commit your new workflow file, using a PR if necessary.
@@ -44,6 +47,9 @@ jobs:
 | --- | --- | --- | --- |
 | `github-token` | GitHub personal access token.<br/>Use `${{ secrets.GITHUB_TOKEN }}` for simplicity. | true | |
 | `dismiss-message` | Message that is displayed when the action dismisses a PR review. | false | `Dismissed by waitaminute because PR diff changed.` |
+| `target-branch` | If set, only PRs targeting this branch will be considered. | false | |
+| `target-branch-filter` | Like `target-branch`, but interpreted as a regex.<br/>If both this and `target-branch` are set, base branch must match both filters. | false | |
+| `target-branch-filter-flags` | Regex flags used with `target-branch-filter`. | false | `i` (case-insensitive) |
 
 ## Development
 
