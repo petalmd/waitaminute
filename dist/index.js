@@ -19444,13 +19444,13 @@ function canTargetBaseBranch(pr) {
   if (targetBranchFilter) {
     const regex = RegExp(targetBranchFilter, targetBranchFilterFlags);
     if (!regex.test(prBaseBranch)) {
-      core.notice(`Will skip execution because branch '${prBaseBranch}' does not pass target branch filter '${targetBranchFilter}'.`);
+      core.notice(`Will skip execution because base branch '${prBaseBranch}' does not pass target branch filter '${targetBranchFilter}'.`);
       return false;
     }
   } else {
     const effectiveTargetBranch = (targetBranch || pr.base.repo.default_branch).trim();
     if (effectiveTargetBranch && prBaseBranch != effectiveTargetBranch) {
-      core.notice(`Will skip execution because branch '${prBaseBranch}' does not match target branch '${effectiveTargetBranch}'.`);
+      core.notice(`Will skip execution because base branch '${prBaseBranch}' does not match target branch '${effectiveTargetBranch}'.`);
       return false;
     }
   }
