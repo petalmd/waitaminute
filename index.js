@@ -5,7 +5,7 @@ import * as artifact from '@actions/artifact';
 import AdmZip from 'adm-zip';
 import { compareDiffs } from './compare';
 
-const WAITAMINUTE_ARTIFACT_NAME = 'waitaminute-data';
+const WAITAMINUTE_ARTIFACT_NAME_PREFIX = 'waitaminute-data-pr-';
 const CURRENT_DIFF_DIR_NAME = 'current-diff';
 const WAITAMINUTE_DIFF_FILE_NAME_A = 'waitaminute.a.diff';
 const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
@@ -19,6 +19,11 @@ const targetBranchFilterFlags = core.getInput('target-branch-filter-flags');
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
+
+// Returns the name of the artifact used to save diff for this PR.
+function getDiffArtifactName(pr) {
+  return `${WAITAMINUTE_ARTIFACT_NAME_PREFIX}${pr.number}`;
+}
 
 // Checks if the name of the PR's base branch passes filters provided by user.
 function canTargetBaseBranch(pr) {
@@ -51,53 +56,43 @@ async function getWorkflowId() {
   return workflowId;
 }
 
-// Finds the ID of the latest successful run of this workflow.
-// If no previous successful run is found, returns null.
-async function getLatestSuccessfulRunId() {
+// Finds the ID of the latest artifact containing previous diff data for this PR.
+// If no previous diff is found, returns null.
+async function getPreviousDiffArtifactId(pr) {
   const workflowId = await getWorkflowId();
+  const prHeadBranch = pr.head.ref;
+  const diffArtifactName = getDiffArtifactName(pr);
 
   const runsIt = ghClient.paginate.iterator(ghClient.rest.actions.listWorkflowRuns, {
     ...github.context.repo,
     workflow_id: workflowId,
     event: 'pull_request',
+    status: 'success',
   });
   for await (const runs of runsIt) {
     for (const run of runs.data) {
-      if (run.conclusion === 'success') {
-        return run.id;
+      if (run.head_branch === prHeadBranch) {
+        const artifacts = await ghClient.paginate(ghClient.rest.actions.listWorkflowRunArtifacts, {
+          ...github.context.repo,
+          run_id: run.id,
+        });
+    
+        const diffArtifact = artifacts.find((artifact) => artifact.name === diffArtifactName);
+        if (diffArtifact) {
+          return diffArtifact.id;
+        }
       }
     }
   }
-  
-  core.notice('Could not find a previous run of this workflow.');
-  return null;
-}
 
-// Finds the ID of the latest artifact containing previous diff data.
-// If no previous diff is found, returns null.
-async function getPreviousDiffArtifactId() {
-  const runId = await getLatestSuccessfulRunId();
-  if (runId) {
-    const artifacts = await ghClient.paginate(ghClient.rest.actions.listWorkflowRunArtifacts, {
-      ...github.context.repo,
-      run_id: runId,
-    });
-
-    const diffArtifact = artifacts.find((artifact) => artifact.name === WAITAMINUTE_ARTIFACT_NAME);
-    if (diffArtifact) {
-      return diffArtifact.id;
-    }
-
-    core.notice('Could not find the previous diff artifact in the latest successful workflow run.');
-  }
-
+  core.notice(`Could not find previous diff artifact. Maybe this is the first run for PR #${pr.number}.`);
   return null;
 }
 
 // Downloads the previous diff files and returns the content of the previous diff.
 // If no previous diff could be downloaded, returns null.
-async function downloadPreviousDiff() {
-  const diffArtifactId = await getPreviousDiffArtifactId();
+async function downloadPreviousDiff(pr) {
+  const diffArtifactId = await getPreviousDiffArtifactId(pr);
   if (diffArtifactId) {
     let zippedDiffData;
     try {
@@ -157,9 +152,10 @@ async function removeAllApprovals(pr) {
   })));
 }
 
-// Uploads the current diffs as an artifact so that our next run can find them.
-async function saveDiffs(previousDiff, currentDiff) {
+// Uploads the current diffs for this PR as an artifact so that our next run can find them.
+async function saveDiffs(pr, previousDiff, currentDiff) {
   const diffDirPath = `${workspace}/${CURRENT_DIFF_DIR_NAME}`;
+  const diffArtifactName = getDiffArtifactName(pr);
 
   await rm(diffDirPath, { force: true, recursive: true });
   await mkdir(diffDirPath, { recursive: true });
@@ -174,7 +170,7 @@ async function saveDiffs(previousDiff, currentDiff) {
     ([diffFilePath, diff]) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
 
-  const { failedItems } = await artiClient.uploadArtifact(WAITAMINUTE_ARTIFACT_NAME, Object.keys(diffFiles), diffDirPath);
+  const { failedItems } = await artiClient.uploadArtifact(diffArtifactName, Object.keys(diffFiles), diffDirPath);
   if (failedItems.length !== 0) {
     throw new Error(`Failed to upload current diff artifact - failed items: ${failedItems}`);
   }
@@ -189,7 +185,7 @@ async function processPREvent() {
 
   let diffChanged = false;
   if (canTargetBaseBranch(pr)) {
-    const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(), getCurrentDiff(pr)]);
+    const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]);
 
     diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
     if (diffChanged) {
@@ -197,7 +193,7 @@ async function processPREvent() {
       await removeAllApprovals(pr);
     }
 
-    await saveDiffs(previousDiff, currentDiff);
+    await saveDiffs(pr, previousDiff, currentDiff);
   }
 
   core.setOutput('diff-changed', diffChanged);
