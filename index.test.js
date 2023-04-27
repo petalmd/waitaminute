@@ -5,7 +5,7 @@ test('compareDiffs detects similar diffs', () => {
   const diffB = 'hello';
   expect(compareDiffs(diffA, diffB)).toBeTruthy();
 });
-
+// lolol
 test('compareDiffs detects different diffs', () => {
   const diffA = 'hello';
   const diffB = 'world';
