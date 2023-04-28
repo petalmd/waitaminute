@@ -10,15 +10,6 @@ inputs:
     description: Message used when dismissing PR reviews
     required: false
     default: 'Dismissed by waitaminute because PR diff changed.'
-  target-branch:
-    description: If set, action will only consider PRs targeting this base branch; defaults to the repository's default branch
-    required: false
-  target-branch-filter:
-    description: Like target-branch, but interpreted as a regex; takes precedence over target-branch if set
-    required: false
-  target-branch-filter-flags:
-    description: If target-branch-filter is set, this can be used to pass regex flags
-    required: false
 outputs:
   diff-changed:
     description: Set to 'true' if the PR diff changed

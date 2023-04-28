@@ -12,9 +12,6 @@ const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
 
 const ghToken = core.getInput('github-token');
 const dismissMessage = core.getInput('dismiss-message');
-const targetBranch = core.getInput('target-branch', { trimWhitespace: false });
-const targetBranchFilter = core.getInput('target-branch-filter');
-const targetBranchFilterFlags = core.getInput('target-branch-filter-flags');
 
 const ghClient = github.getOctokit(ghToken);
 const artiClient = artifact.create();
@@ -23,27 +20,6 @@ const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
 // Returns the name of the artifact used to save diff for this PR.
 function getDiffArtifactName(pr) {
   return `${WAITAMINUTE_ARTIFACT_NAME_PREFIX}${pr.number}`;
-}
-
-// Checks if the name of the PR's base branch passes filters provided by user.
-function canTargetBaseBranch(pr) {
-  const prBaseBranch = pr.base.ref;
-
-  if (targetBranchFilter) {
-    const regex = RegExp(targetBranchFilter, targetBranchFilterFlags);
-    if (!regex.test(prBaseBranch)) {
-      core.notice(`Will skip execution because base branch '${prBaseBranch}' does not pass target branch filter '${targetBranchFilter}'.`);
-      return false;
-    }
-  } else {
-    const effectiveTargetBranch = (targetBranch || pr.base.repo.default_branch).trim();
-    if (effectiveTargetBranch && prBaseBranch != effectiveTargetBranch) {
-      core.notice(`Will skip execution because base branch '${prBaseBranch}' does not match target branch '${effectiveTargetBranch}'.`);
-      return false;
-    }
-  }
-
-  return true;
 }
 
 // Finds the ID of this workflow.
@@ -183,18 +159,15 @@ async function processPREvent() {
     throw new Error('Pull request event did not contain PR information.');
   }
 
-  let diffChanged = false;
-  if (canTargetBaseBranch(pr)) {
-    const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]);
+  const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]);
 
-    diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
-    if (diffChanged) {
-      core.notice('Removing PR approvals because PR diff changed.');
-      await removeAllApprovals(pr);
-    }
-
-    await saveDiffs(pr, previousDiff, currentDiff);
+  const diffChanged = previousDiff && !compareDiffs(previousDiff, currentDiff);
+  if (diffChanged) {
+    core.notice('Removing PR approvals because PR diff changed.');
+    await removeAllApprovals(pr);
   }
+
+  await saveDiffs(pr, previousDiff, currentDiff);
 
   core.setOutput('diff-changed', diffChanged);
 }

@@ -26,16 +26,14 @@ on:
     # Here, 'opened' is important because it allows the action to
     # see the initial PR diff and compare it later.
     types: [ opened, edited, synchronize ]
-
-    # Note: if you want to limit the effect to a specific base branch,
-    # do not use the 'branches:' filter here, use the action's
-    # 'target-branch' input (see Action parameters).
+    branches:
+      - main
 
 jobs:
   waitaminute:
     runs-on: ubuntu-latest
     steps:
-      - uses: clechasseur/waitaminute@v1.0.0-beta2
+      - uses: clechasseur/waitaminute@v1.0.0-beta
         with:
           dismiss-message: Review dismissed because the PR has changed.
 ```
@@ -48,9 +46,6 @@ jobs:
 | --- | --- | --- | --- |
 | `github-token` | GitHub personal access token. | false | `${{ github.token }}` (see [here](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)) |
 | `dismiss-message` | Message that is displayed when the action dismisses a PR review. | false | `Dismissed by waitaminute because PR diff changed.` |
-| `target-branch` | If set, only PRs targeting this branch will be considered. | false | *default branch for the repository* |
-| `target-branch-filter` | Like `target-branch`, but interpreted as a regex.<br/>Takes precedence over `target-branch` if set. | false | |
-| `target-branch-filter-flags` | Regex flags used with `target-branch-filter`. | false | |
 
 ## Development
 
