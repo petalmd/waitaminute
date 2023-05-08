@@ -33,7 +33,7 @@ jobs:
   waitaminute:
     runs-on: ubuntu-latest
     steps:
-      - uses: clechasseur/waitaminute@v1.0.0-beta
+      - uses: clechasseur/waitaminute@v1.0.0-beta2
         with:
           dismiss-message: Review dismissed because the PR has changed.
 ```
