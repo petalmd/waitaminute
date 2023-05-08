@@ -46,4 +46,4 @@ const getChangeEffectiveLineDiff = (change, oldStart, newStart) => {
     default:
       throw new Error(`Unsupported change type: ${change.type}`);
   }
-}
+};
