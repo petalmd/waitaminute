@@ -64,6 +64,7 @@ describe('getEffectiveDiff', () => {
   describe('when diff contains new and deleted files', () => {
     it('returns diff data with added and deleted lines', () => {
       const diffData = getEffectiveDiff(DIFF_WITH_NEW_AND_DELETED_FILES);
+      // lolol
       expect(diffData).toStrictEqual([
         {
           chunks: [
