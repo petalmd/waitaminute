@@ -59,7 +59,7 @@ index 495d3e8..c2c7b9b 100644
 -  expect(compareDiffs(diffA, diffB)).toBeFalsy();
  });`
 
-describe('getEffectiveDiff', () => {
+describe('getEffectiveDiff', () => { // lolol
   // lolol
   describe('when diff contains new and deleted files', () => {
     // lolol
