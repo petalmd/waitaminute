@@ -32,8 +32,11 @@
     "parse-diff": "^0.11.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.21.8",
     "@babel/eslint-parser": "^7.21.8",
+    "@babel/preset-env": "^7.21.5",
     "@vercel/ncc": "^0.36.1",
+    "babel-jest": "^29.5.0",
     "eslint": "^8.40.0",
     "jest": "^29.5.0"
   }

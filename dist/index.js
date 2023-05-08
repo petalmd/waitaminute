@@ -1,21 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 180:
-/***/ ((__unused_webpack_module, exports) => {
-
-// Compares two diffs to see if they are equivalent.
-const compareDiffs = function(diffA, diffB) {
-  // Maybe we'll need to be smarter in the future, but for now we're just
-  // comparing them using ===.
-  return diffA === diffB;
-}
-
-exports.I = compareDiffs;
-
-
-/***/ }),
-
 /***/ 2605:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -14770,6 +14755,15 @@ function onceStrict (fn) {
 
 /***/ }),
 
+/***/ 4833:
+/***/ ((module) => {
+
+"use strict";
+function _typeof(obj){"@babel/helpers - typeof";return _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(obj){return typeof obj}:function(obj){return obj&&"function"==typeof Symbol&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj},_typeof(obj)}function _createForOfIteratorHelper(o,allowArrayLike){var it=typeof Symbol!=="undefined"&&o[Symbol.iterator]||o["@@iterator"];if(!it){if(Array.isArray(o)||(it=_unsupportedIterableToArray(o))||allowArrayLike&&o&&typeof o.length==="number"){if(it)o=it;var i=0;var F=function F(){};return{s:F,n:function n(){if(i>=o.length)return{done:true};return{done:false,value:o[i++]}},e:function e(_e2){throw _e2},f:F}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var normalCompletion=true,didErr=false,err;return{s:function s(){it=it.call(o)},n:function n(){var step=it.next();normalCompletion=step.done;return step},e:function e(_e3){didErr=true;err=_e3},f:function f(){try{if(!normalCompletion&&it["return"]!=null)it["return"]()}finally{if(didErr)throw err}}}}function _defineProperty(obj,key,value){key=_toPropertyKey(key);if(key in obj){Object.defineProperty(obj,key,{value:value,enumerable:true,configurable:true,writable:true})}else{obj[key]=value}return obj}function _toPropertyKey(arg){var key=_toPrimitive(arg,"string");return _typeof(key)==="symbol"?key:String(key)}function _toPrimitive(input,hint){if(_typeof(input)!=="object"||input===null)return input;var prim=input[Symbol.toPrimitive];if(prim!==undefined){var res=prim.call(input,hint||"default");if(_typeof(res)!=="object")return res;throw new TypeError("@@toPrimitive must return a primitive value.")}return(hint==="string"?String:Number)(input)}function _slicedToArray(arr,i){return _arrayWithHoles(arr)||_iterableToArrayLimit(arr,i)||_unsupportedIterableToArray(arr,i)||_nonIterableRest()}function _nonIterableRest(){throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}function _unsupportedIterableToArray(o,minLen){if(!o)return;if(typeof o==="string")return _arrayLikeToArray(o,minLen);var n=Object.prototype.toString.call(o).slice(8,-1);if(n==="Object"&&o.constructor)n=o.constructor.name;if(n==="Map"||n==="Set")return Array.from(o);if(n==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return _arrayLikeToArray(o,minLen)}function _arrayLikeToArray(arr,len){if(len==null||len>arr.length)len=arr.length;for(var i=0,arr2=new Array(len);i<len;i++){arr2[i]=arr[i]}return arr2}function _iterableToArrayLimit(arr,i){var _i=null==arr?null:"undefined"!=typeof Symbol&&arr[Symbol.iterator]||arr["@@iterator"];if(null!=_i){var _s,_e,_x,_r,_arr=[],_n=!0,_d=!1;try{if(_x=(_i=_i.call(arr)).next,0===i){if(Object(_i)!==_i)return;_n=!1}else for(;!(_n=(_s=_x.call(_i)).done)&&(_arr.push(_s.value),_arr.length!==i);_n=!0){;}}catch(err){_d=!0,_e=err}finally{try{if(!_n&&null!=_i["return"]&&(_r=_i["return"](),Object(_r)!==_r))return}finally{if(_d)throw _e}}return _arr}}function _arrayWithHoles(arr){if(Array.isArray(arr))return arr}module.exports=function(input){if(!input)return[];if(typeof input!=="string"||input.match(/^\s+$/))return[];var lines=input.split("\n");if(lines.length===0)return[];var files=[];var currentFile=null;var currentChunk=null;var deletedLineCounter=0;var addedLineCounter=0;var currentFileChanges=null;var normal=function normal(line){var _currentChunk;(_currentChunk=currentChunk)===null||_currentChunk===void 0?void 0:_currentChunk.changes.push({type:"normal",normal:true,ln1:deletedLineCounter++,ln2:addedLineCounter++,content:line});currentFileChanges.oldLines--;currentFileChanges.newLines--};var start=function start(line){var _parseFiles;var _ref=(_parseFiles=parseFiles(line))!==null&&_parseFiles!==void 0?_parseFiles:[],_ref2=_slicedToArray(_ref,2),fromFileName=_ref2[0],toFileName=_ref2[1];currentFile={chunks:[],deletions:0,additions:0,from:fromFileName,to:toFileName};files.push(currentFile)};var restart=function restart(){if(!currentFile||currentFile.chunks.length)start()};var newFile=function newFile(_,match){restart();currentFile["new"]=true;currentFile.newMode=match[1];currentFile.from="/dev/null"};var deletedFile=function deletedFile(_,match){restart();currentFile.deleted=true;currentFile.oldMode=match[1];currentFile.to="/dev/null"};var oldMode=function oldMode(_,match){restart();currentFile.oldMode=match[1]};var newMode=function newMode(_,match){restart();currentFile.newMode=match[1]};var index=function index(line,match){restart();currentFile.index=line.split(" ").slice(1);if(match[1]){currentFile.oldMode=currentFile.newMode=match[1].trim()}};var fromFile=function fromFile(line){restart();currentFile.from=parseOldOrNewFile(line)};var toFile=function toFile(line){restart();currentFile.to=parseOldOrNewFile(line)};var toNumOfLines=function toNumOfLines(number){return+(number||1)};var chunk=function chunk(line,match){if(!currentFile){start(line)}var _match$slice=match.slice(1),_match$slice2=_slicedToArray(_match$slice,4),oldStart=_match$slice2[0],oldNumLines=_match$slice2[1],newStart=_match$slice2[2],newNumLines=_match$slice2[3];deletedLineCounter=+oldStart;addedLineCounter=+newStart;currentChunk={content:line,changes:[],oldStart:+oldStart,oldLines:toNumOfLines(oldNumLines),newStart:+newStart,newLines:toNumOfLines(newNumLines)};currentFileChanges={oldLines:toNumOfLines(oldNumLines),newLines:toNumOfLines(newNumLines)};currentFile.chunks.push(currentChunk)};var del=function del(line){if(!currentChunk)return;currentChunk.changes.push({type:"del",del:true,ln:deletedLineCounter++,content:line});currentFile.deletions++;currentFileChanges.oldLines--};var add=function add(line){if(!currentChunk)return;currentChunk.changes.push({type:"add",add:true,ln:addedLineCounter++,content:line});currentFile.additions++;currentFileChanges.newLines--};var eof=function eof(line){var _currentChunk$changes3;if(!currentChunk)return;var _currentChunk$changes=currentChunk.changes.slice(-1),_currentChunk$changes2=_slicedToArray(_currentChunk$changes,1),mostRecentChange=_currentChunk$changes2[0];currentChunk.changes.push((_currentChunk$changes3={type:mostRecentChange.type},_defineProperty(_currentChunk$changes3,mostRecentChange.type,true),_defineProperty(_currentChunk$changes3,"ln1",mostRecentChange.ln1),_defineProperty(_currentChunk$changes3,"ln2",mostRecentChange.ln2),_defineProperty(_currentChunk$changes3,"ln",mostRecentChange.ln),_defineProperty(_currentChunk$changes3,"content",line),_currentChunk$changes3))};var schemaHeaders=[[/^diff\s/,start],[/^new file mode (\d+)$/,newFile],[/^deleted file mode (\d+)$/,deletedFile],[/^old mode (\d+)$/,oldMode],[/^new mode (\d+)$/,newMode],[/^index\s[\da-zA-Z]+\.\.[\da-zA-Z]+(\s(\d+))?$/,index],[/^---\s/,fromFile],[/^\+\+\+\s/,toFile],[/^@@\s+-(\d+),?(\d+)?\s+\+(\d+),?(\d+)?\s@@/,chunk],[/^\\ No newline at end of file$/,eof]];var schemaContent=[[/^\\ No newline at end of file$/,eof],[/^-/,del],[/^\+/,add],[/^\s+/,normal]];var parseContentLine=function parseContentLine(line){for(var _i2=0,_schemaContent=schemaContent;_i2<_schemaContent.length;_i2++){var _schemaContent$_i=_slicedToArray(_schemaContent[_i2],2),pattern=_schemaContent$_i[0],handler=_schemaContent$_i[1];var match=line.match(pattern);if(match){handler(line,match);break}}if(currentFileChanges.oldLines===0&&currentFileChanges.newLines===0){currentFileChanges=null}};var parseHeaderLine=function parseHeaderLine(line){for(var _i3=0,_schemaHeaders=schemaHeaders;_i3<_schemaHeaders.length;_i3++){var _schemaHeaders$_i=_slicedToArray(_schemaHeaders[_i3],2),pattern=_schemaHeaders$_i[0],handler=_schemaHeaders$_i[1];var match=line.match(pattern);if(match){handler(line,match);break}}};var parseLine=function parseLine(line){if(currentFileChanges){parseContentLine(line)}else{parseHeaderLine(line)}return};var _iterator=_createForOfIteratorHelper(lines),_step;try{for(_iterator.s();!(_step=_iterator.n()).done;){var line=_step.value;parseLine(line)}}catch(err){_iterator.e(err)}finally{_iterator.f()}return files};var fileNameDiffRegex=/(a|i|w|c|o|1|2)\/.*(?=["']? ["']?(b|i|w|c|o|1|2)\/)|(b|i|w|c|o|1|2)\/.*$/g;var gitFileHeaderRegex=/^(a|b|i|w|c|o|1|2)\//;var parseFiles=function parseFiles(line){var fileNames=line===null||line===void 0?void 0:line.match(fileNameDiffRegex);return fileNames===null||fileNames===void 0?void 0:fileNames.map(function(fileName){return fileName.replace(gitFileHeaderRegex,"").replace(/("|')$/,"")})};var qoutedFileNameRegex=/^\\?['"]|\\?['"]$/g;var parseOldOrNewFile=function parseOldOrNewFile(line){var fileName=leftTrimChars(line,"-+").trim();fileName=removeTimeStamp(fileName);return fileName.replace(qoutedFileNameRegex,"").replace(gitFileHeaderRegex,"")};var leftTrimChars=function leftTrimChars(string,trimmingChars){string=makeString(string);if(!trimmingChars&&String.prototype.trimLeft)return string.trimLeft();var trimmingString=formTrimmingString(trimmingChars);return string.replace(new RegExp("^".concat(trimmingString,"+")),"")};var timeStampRegex=/\t.*|\d{4}-\d\d-\d\d\s\d\d:\d\d:\d\d(.\d+)?\s(\+|-)\d\d\d\d/;var removeTimeStamp=function removeTimeStamp(string){var timeStamp=timeStampRegex.exec(string);if(timeStamp){string=string.substring(0,timeStamp.index).trim()}return string};var formTrimmingString=function formTrimmingString(trimmingChars){if(trimmingChars===null||trimmingChars===undefined)return"\\s";else if(trimmingChars instanceof RegExp)return trimmingChars.source;return"[".concat(makeString(trimmingChars).replace(/([.*+?^=!:${}()|[\]/\\])/g,"\\$1"),"]")};var makeString=function makeString(itemToConvert){return(itemToConvert!==null&&itemToConvert!==void 0?itemToConvert:"")+""};
+
+
+/***/ }),
+
 /***/ 8714:
 /***/ ((module) => {
 
@@ -19412,8 +19406,60 @@ var artifact_client = __nccwpck_require__(2605);
 // EXTERNAL MODULE: ./node_modules/adm-zip/adm-zip.js
 var adm_zip = __nccwpck_require__(6761);
 var adm_zip_default = /*#__PURE__*/__nccwpck_require__.n(adm_zip);
-// EXTERNAL MODULE: ./compare.js
-var compare = __nccwpck_require__(180);
+// EXTERNAL MODULE: ./node_modules/parse-diff/index.js
+var parse_diff = __nccwpck_require__(4833);
+var parse_diff_default = /*#__PURE__*/__nccwpck_require__.n(parse_diff);
+;// CONCATENATED MODULE: ./diff.js
+
+
+// Given a string containing diff data, parses the data
+// and returns an array containing the "effective diff" -
+// the part of the diff that really changed. Each array
+// item contains the diff for one file.
+const getEffectiveDiff = (diffData) => {
+  const files = parse_diff_default()(diffData);
+  return files
+            .sort((fileA, fileB) => fileA.to.localeCompare(fileB.to))
+            .map((file) => getFileEffectiveDiff(file));
+};
+
+const getFileEffectiveDiff = (file) => ({
+  chunks: file.chunks.map((chunk) => getChunkEffectiveDiff(chunk)),
+  deletions: file.deletions,
+  additions: file.additions,
+  from: file.from,
+  to: file.to,
+  newMode: file.newMode,
+  oldMode: file.oldMode,
+});
+
+const getChunkEffectiveDiff = (chunk) => {
+  const { oldStart, newStart } = chunk;
+  return {
+    changes: chunk.changes
+                      .filter((change) => change.type !== 'normal')
+                      .map((change) => getChangeEffectiveDiff(change, oldStart, newStart)),
+    startDiff: (newStart - oldStart),
+  };
+};
+
+const getChangeEffectiveDiff = (change, oldStart, newStart) => ({
+  type: change.type,
+  lnDiff: getChangeEffectiveLineDiff(change, oldStart, newStart),
+  content: change.content,
+});
+
+const getChangeEffectiveLineDiff = (change, oldStart, newStart) => {
+  switch (change.type) {
+    case 'del':
+      return change.ln - oldStart;
+    case 'add':
+      return change.ln - newStart;
+    default:
+      throw new Error(`Unsupported change type: ${change.type}`);
+  }
+}
+
 ;// CONCATENATED MODULE: ./index.js
 
 
@@ -19422,7 +19468,7 @@ var compare = __nccwpck_require__(180);
 
 
 
-const WAITAMINUTE_ARTIFACT_NAME_PREFIX = 'waitaminute-data-pr-';
+const WAITAMINUTE_ARTIFACT_NAME_PREFIX = 'waitaminute-data-v2-pr-';
 const CURRENT_DIFF_DIR_NAME = 'current-diff';
 const WAITAMINUTE_DIFF_FILE_NAME_A = 'waitaminute.a.diff';
 const WAITAMINUTE_DIFF_FILE_NAME_B = 'waitaminute.b.diff';
@@ -19576,9 +19622,11 @@ async function processPREvent() {
     throw new Error('Pull request event did not contain PR information.');
   }
 
-  const [previousDiff, currentDiff] = await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]);
+  const [previousDiff, currentDiff] = (await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]))
+                                        .map((diffData) => diffData ? getEffectiveDiff(diffData) : null)
+                                        .map((diff) => diff ? JSON.stringify(diff, null, 2) : null);
 
-  const diffChanged = previousDiff && !(0,compare/* compareDiffs */.I)(previousDiff, currentDiff);
+  const diffChanged = previousDiff && previousDiff !== currentDiff;
   if (diffChanged) {
     core.notice('Removing PR approvals because PR diff changed.');
     await removeAllApprovals(pr);
