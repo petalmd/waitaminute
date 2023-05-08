@@ -1,3 +1,4 @@
+// lolol
 const { compareDiffs } = require('./compare');
 
 test('compareDiffs detects similar diffs', () => {
