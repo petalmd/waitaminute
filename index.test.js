@@ -61,6 +61,7 @@ index 495d3e8..c2c7b9b 100644
 
 describe('getEffectiveDiff', () => {
   describe('when diff contains new and deleted files', () => {
+    // lolol
     it('returns diff data with added and deleted lines', () => {
       const diffData = getEffectiveDiff(DIFF_WITH_NEW_AND_DELETED_FILES);
       expect(diffData).toStrictEqual([
