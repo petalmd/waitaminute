@@ -19622,9 +19622,12 @@ async function processPREvent() {
     throw new Error('Pull request event did not contain PR information.');
   }
 
-  const [previousDiff, currentDiff] = (await Promise.all([downloadPreviousDiff(pr), getCurrentDiff(pr)]))
-                                        .map((diffData) => diffData ? getEffectiveDiff(diffData) : null)
-                                        .map((diff) => diff ? JSON.stringify(diff, null, 2) : null);
+  const [previousDiff, currentDiff] = await Promise.all([
+    downloadPreviousDiff(pr),
+    getCurrentDiff(pr)
+      .then((diffData) => getEffectiveDiff(diffData))
+      .then((diff) => JSON.stringify(diff, null, 2))
+  ]);
 
   const diffChanged = previousDiff && previousDiff !== currentDiff;
   if (diffChanged) {
