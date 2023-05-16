@@ -1,4 +1,4 @@
-name: 'waitaminute...'
+name: 'Dismiss PR reviews on change (waitaminute)'
 author: 'Charles Lechasseur'
 description: 'Dismisses PR reviews when the PR diff changes'
 inputs:
