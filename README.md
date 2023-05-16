@@ -46,26 +46,3 @@ jobs:
 | --- | --- | --- | --- |
 | `github-token` | GitHub personal access token. | false | `${{ github.token }}` (see [here](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)) |
 | `dismiss-message` | Message that is displayed when the action dismisses a PR review. | false | `Dismissed by waitaminute because PR diff changed.` |
-
-## Development
-
-Requirements:
-- Node.js 16.x or later
-
-Installing dependencies:
-
-```bash
-npm install
-```
-
-Running tests:
-
-```bash
-npm test
-```
-
-Preparing for a commit (runs lint, prepares `dist/` directory and runs tests):
-
-```
-npm run all
-```
