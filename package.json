@@ -11,19 +11,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clechasseur/waitaminute.git"
+    "url": "git+https://github.com/petalmd/waitaminute.git"
   },
   "keywords": [
     "GitHub",
     "Actions",
     "JavaScript"
   ],
-  "author": "clechasseur",
+  "author": "petalmd",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/clechasseur/waitaminute/issues"
+    "url": "https://github.com/petalmd/waitaminute/issues"
   },
-  "homepage": "https://github.com/clechasseur/waitaminute#readme",
+  "homepage": "https://github.com/petalmd/waitaminute#readme",
   "dependencies": {
     "@actions/artifact": "^1.1.1",
     "@actions/core": "^1.10.0",

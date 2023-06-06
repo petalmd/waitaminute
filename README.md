@@ -1,7 +1,7 @@
 # Wait a minute...
 
 <p align="center">
-  <a href="https://github.com/clechasseur/waitaminute/actions"><img alt="waitaminute status" src="https://github.com/clechasseur/waitaminute/workflows/units-test/badge.svg"></a>
+  <a href="https://github.com/petalmd/waitaminute/actions"><img alt="waitaminute status" src="https://github.com/petalmd/waitaminute/workflows/units-test/badge.svg"></a>
 </p>
 
 A GitHub Action that dismisses reviews from PRs when the PR diff changes.
@@ -33,7 +33,7 @@ jobs:
   waitaminute:
     runs-on: ubuntu-latest
     steps:
-      - uses: clechasseur/waitaminute@v1.0.0
+      - uses: petalmd/waitaminute@v1.0.0
         with:
           dismiss-message: Review dismissed because the PR has changed.
 ```
