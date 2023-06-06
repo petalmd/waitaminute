@@ -33,7 +33,7 @@ jobs:
   waitaminute:
     runs-on: ubuntu-latest
     steps:
-      - uses: petalmd/waitaminute@v1.0.0
+      - uses: petalmd/waitaminute@v1
         with:
           dismiss-message: Review dismissed because the PR has changed.
 ```
