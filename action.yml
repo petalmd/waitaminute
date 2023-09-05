@@ -14,7 +14,7 @@ outputs:
   diff-changed:
     description: Set to 'true' if the PR diff changed
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
 branding:
   icon: 'alert-circle'

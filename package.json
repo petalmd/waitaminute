@@ -1,6 +1,6 @@
 {
   "name": "waitaminute",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "GitHub Action to dismiss PR reviews when the PR diff changes",
   "main": "index.js",
   "scripts": {
