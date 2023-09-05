@@ -1,7 +1,7 @@
 # Development
 
 Requirements:
-- Node.js 16.x or later
+- Node.js 20.x or later
 
 Installing dependencies:
 
