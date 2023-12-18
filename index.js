@@ -34,7 +34,7 @@ const ghToken = core.getInput('github-token');
 const dismissMessage = core.getInput('dismiss-message');
 
 const ghClient = github.getOctokit(ghToken);
-const artiClient = artifact.create();
+const artiClient = new artifact.DefaultArtifactClient();
 const workspace = process.env['GITHUB_WORKSPACE'] ?? process.cwd();
 
 // Returns the name of the artifact used to save diff for this PR.
@@ -166,9 +166,9 @@ async function saveDiffs(pr, previousDiff, currentDiff) {
     ([diffFilePath, diff]) => writeFile(diffFilePath, diff, { encoding: 'utf8' })
   ));
 
-  const { failedItems } = await artiClient.uploadArtifact(diffArtifactName, Object.keys(diffFiles), diffDirPath);
-  if (failedItems.length !== 0) {
-    throw new Error(`Failed to upload current diff artifact - failed items: ${failedItems}`);
+  const uploadResponse = await artiClient.uploadArtifact(diffArtifactName, Object.keys(diffFiles), diffDirPath);
+  if (!uploadResponse.id) {
+    throw new Error(`Failed to upload current diff artifact`);
   }
 }
 
